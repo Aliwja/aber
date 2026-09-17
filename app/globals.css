@@ -92,3 +92,101 @@ h2 {
   font-size: 22px;
   font-weight: 700;
   }
+/* ============================================
+   تنسيقات النماذج (Forms)
+   ============================================ */
+
+.form {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--aber-text);
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid var(--aber-border);
+  border-radius: 10px;
+  background: white;
+  color: var(--aber-text);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--aber-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.form-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background: var(--aber-primary);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-btn:hover:not(:disabled) {
+  background: var(--aber-primary-dark);
+}
+
+.form-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-error {
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+}
+
+.form-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--aber-muted);
+}
+
+.form-link a {
+  color: var(--aber-primary);
+  font-weight: 600;
+}
+
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid var(--aber-border);
+  margin-bottom: 24px;
+}
+
+.header-nav a {
+  color: var(--aber-primary);
+  font-weight: 600;
+  font-size: 14px;
+}
