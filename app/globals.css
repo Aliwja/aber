@@ -1,16 +1,35 @@
 /* ============================================
    ABER | عابر — التنسيقات الأساسية
+   الألوان: كحلي + بيج
    ============================================ */
 
 :root {
-  --aber-primary: #0ea5e9;
-  --aber-primary-dark: #0284c7;
-  --aber-bg: #f8fafc;
-  --aber-text: #0f172a;
-  --aber-muted: #64748b;
-  --aber-border: #e2e8f0;
+  /* الألوان الأساسية */
+  --aber-primary: #1e3a5f;
+  --aber-primary-dark: #152a47;
+  --aber-primary-light: #2d5080;
+
+  /* ألوان مساعدة */
+  --aber-accent: #c9a961;
+  --aber-accent-light: #e5d3a5;
+
+  /* الخلفيات */
+  --aber-bg: #f5efe6;
+  --aber-bg-soft: #faf6ef;
   --aber-card: #ffffff;
+
+  /* النصوص */
+  --aber-text: #1a2942;
+  --aber-text-soft: #4a5568;
+  --aber-muted: #7a6f5f;
+
+  /* الحدود */
+  --aber-border: #e5dcc9;
+  --aber-border-soft: #efe8d8;
+
+  /* شكل */
   --aber-radius: 16px;
+  --aber-radius-sm: 10px;
 }
 
 * {
@@ -54,7 +73,7 @@ button {
   border-radius: var(--aber-radius);
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(30, 58, 95, 0.06);
 }
 
 .btn {
@@ -81,6 +100,7 @@ button {
 h1, h2, h3 {
   line-height: 1.3;
   margin-bottom: 12px;
+  color: var(--aber-text);
 }
 
 h1 {
@@ -129,7 +149,7 @@ h2 {
 .form-input:focus {
   outline: none;
   border-color: var(--aber-primary);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
 }
 
 .form-btn {
@@ -158,7 +178,7 @@ h2 {
   padding: 12px;
   margin-bottom: 16px;
   font-size: 14px;
-  color: #b91c1c;
+  color: #7f1d1d;
   background: #fef2f2;
   border: 1px solid #fca5a5;
   border-radius: 10px;
@@ -181,7 +201,7 @@ h2 {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: white;
+  background: var(--aber-bg-soft);
   border-bottom: 1px solid var(--aber-border);
   margin-bottom: 24px;
 }
@@ -190,4 +210,18 @@ h2 {
   color: var(--aber-primary);
   font-weight: 600;
   font-size: 14px;
+}
+
+.header-nav a[href="/signup"] {
+  background: var(--aber-primary);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.header-nav a[href="/profile"] {
+  background: var(--aber-primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
 }
