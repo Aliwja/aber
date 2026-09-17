@@ -17,11 +17,19 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
+  const [diagnostics, setDiagnostics] = useState<any>(null);
 
   useEffect(() => {
     async function loadData() {
+      setDiagnostics({
+        urlLength: supabaseUrl.length,
+        urlStart: supabaseUrl.substring(0, 40),
+        keyLength: supabaseAnon.length,
+        keyStart: supabaseAnon.substring(0, 25),
+      });
+
       if (!supabaseUrl || !supabaseAnon) {
-        setError('متغيرات Supabase غير معرّفة. أضفها في Vercel.');
+        setError(`متغيرات Supabase غير معرّفة.\nURL: ${supabaseUrl ? 'موجود' : 'فارغ'}\nKEY: ${supabaseAnon ? 'موجود' : 'فارغ'}`);
         setLoading(false);
         return;
       }
@@ -35,13 +43,20 @@ export default function HomePage() {
           .order('created_at', { ascending: true })
           .limit(20);
 
-        if (roleErr) throw roleErr;
+        if (roleErr) {
+          throw new Error(
+            `Supabase Error\nMessage: ${roleErr.message}\nCode: ${roleErr.code}\nDetails: ${roleErr.details || 'none'}\nHint: ${roleErr.hint || 'none'}`
+          );
+        }
 
         setRoles((rolesData as Role[]) ?? []);
         setConnected(true);
         setLoading(false);
       } catch (e: any) {
-        setError(e.message || 'حدث خطأ غير متوقع');
+        console.error('Full error:', e);
+        setError(
+          `Type: ${e.name || 'Error'}\nMessage: ${e.message || 'Unknown'}\nCause: ${e.cause?.message || 'none'}`
+        );
         setLoading(false);
       }
     }
@@ -51,8 +66,8 @@ export default function HomePage() {
 
   return (
     <main className="container">
-      <header style={{ textAlign: 'center', marginBottom: '48px' }}>
-        <h1 style={{ fontSize: '42px', marginBottom: '8px' }}>
+      <header style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '38px', marginBottom: '8px' }}>
           مرحبًا بك في <span style={{ color: '#0ea5e9' }}>عابر</span> 🌍
         </h1>
         <p className="muted" style={{ fontSize: '18px' }}>
@@ -68,8 +83,30 @@ export default function HomePage() {
 
       {error && (
         <div className="card" style={{ borderColor: '#fca5a5', background: '#fef2f2' }}>
-          <h2 style={{ color: '#dc2626' }}>⚠️ خطأ</h2>
-          <p style={{ wordBreak: 'break-word' }}>{error}</p>
+          <h2 style={{ color: '#dc2626', marginBottom: '12px' }}>⚠️ خطأ</h2>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              fontSize: '13px',
+              background: '#fff',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid #fca5a5',
+              fontFamily: 'monospace',
+            }}
+          >
+            {error}
+          </pre>
+
+          {diagnostics && (
+            <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
+              <p><strong>URL length:</strong> {diagnostics.urlLength} chars</p>
+              <p><strong>URL start:</strong> {diagnostics.urlStart}</p>
+              <p><strong>Key length:</strong> {diagnostics.keyLength} chars</p>
+              <p><strong>Key start:</strong> {diagnostics.keyStart}...</p>
+            </div>
+          )}
         </div>
       )}
 
