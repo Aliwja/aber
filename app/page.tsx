@@ -26,6 +26,7 @@ type City = {
   id: string;
   name_ar: string;
   name_en: string;
+  slug: string | null;
   cover_image_url: string | null;
   is_featured: boolean;
 };
@@ -63,7 +64,7 @@ export default function HomePage() {
             .limit(12),
           supabase
             .from('cities')
-            .select('id, name_ar, name_en, cover_image_url, is_featured')
+            .select('id, name_ar, name_en, slug, cover_image_url, is_featured')
             .eq('is_featured', true)
             .eq('is_active', true)
             .limit(6),
@@ -219,15 +220,17 @@ export default function HomePage() {
                   gap: '12px',
                 }}>
                   {categories.map((cat) => (
-                    <div
+                    <a
                       key={cat.id}
+                      href={`/categories/${cat.code}`}
                       style={{
                         padding: '20px 12px',
                         background: 'white',
                         borderRadius: '14px',
                         border: '1px solid #e5dcc9',
                         textAlign: 'center',
-                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        display: 'block',
                         transition: 'transform 0.2s, box-shadow 0.2s',
                       }}
                     >
@@ -237,7 +240,7 @@ export default function HomePage() {
                       <div style={{ fontWeight: 700, fontSize: '14px', color: '#1a2942' }}>
                         {cat.name_ar}
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </section>
@@ -255,15 +258,17 @@ export default function HomePage() {
                   gap: '12px',
                 }}>
                   {countries.map((country) => (
-                    <div
+                    <a
                       key={country.id}
+                      href={`/countries/${country.iso2}`}
                       style={{
                         padding: '16px 12px',
                         background: 'white',
                         borderRadius: '14px',
                         border: '1px solid #e5dcc9',
                         textAlign: 'center',
-                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        display: 'block',
                       }}
                     >
                       {country.flag_url && (
@@ -286,7 +291,7 @@ export default function HomePage() {
                       <div style={{ color: '#7a6f5f', fontSize: '12px' }}>
                         {country.iso2}
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </section>
@@ -304,14 +309,16 @@ export default function HomePage() {
                   gap: '16px',
                 }}>
                   {cities.map((city) => (
-                    <div
+                    <a
                       key={city.id}
+                      href={`/cities/${city.slug || city.id}`}
                       style={{
                         background: 'white',
                         borderRadius: '16px',
                         overflow: 'hidden',
                         border: '1px solid #e5dcc9',
-                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        display: 'block',
                       }}
                     >
                       {city.cover_image_url ? (
@@ -338,7 +345,7 @@ export default function HomePage() {
                           {city.name_en}
                         </div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </section>
