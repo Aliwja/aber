@@ -6,12 +6,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-type Stats = {
-  profiles: number;
-  roles: number;
-  hasRls: boolean;
-};
-
 type Role = {
   code: string;
   name_ar: string;
@@ -19,10 +13,10 @@ type Role = {
 };
 
 export default function HomePage() {
-  const [stats, setStats] = useState<Stats | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -35,31 +29,16 @@ export default function HomePage() {
       try {
         const supabase = createClient(supabaseUrl, supabaseAnon);
 
-        const { count: profilesCount, error: profErr } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
-
-        if (profErr) throw profErr;
-
-        const { count: rolesCount, error: roleErr } = await supabase
-          .from('roles')
-          .select('*', { count: 'exact', head: true });
-
-        if (roleErr) throw roleErr;
-
-        const { data: rolesData } = await supabase
+        const { data: rolesData, error: roleErr } = await supabase
           .from('roles')
           .select('code, name_ar, name_en')
           .order('created_at', { ascending: true })
-          .limit(10);
+          .limit(20);
 
-        setStats({
-          profiles: profilesCount ?? 0,
-          roles: rolesCount ?? 0,
-          hasRls: true,
-        });
+        if (roleErr) throw roleErr;
 
         setRoles((rolesData as Role[]) ?? []);
+        setConnected(true);
         setLoading(false);
       } catch (e: any) {
         setError(e.message || 'حدث خطأ غير متوقع');
@@ -90,30 +69,23 @@ export default function HomePage() {
       {error && (
         <div className="card" style={{ borderColor: '#fca5a5', background: '#fef2f2' }}>
           <h2 style={{ color: '#dc2626' }}>⚠️ خطأ</h2>
-          <p>{error}</p>
+          <p style={{ wordBreak: 'break-word' }}>{error}</p>
         </div>
       )}
 
-      {stats && !loading && !error && (
+      {!loading && !error && connected && (
         <>
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
               gap: '16px',
               marginBottom: '32px',
             }}
           >
             <div className="card" style={{ textAlign: 'center', marginBottom: 0 }}>
               <div style={{ fontSize: '32px', fontWeight: '800', color: '#0ea5e9' }}>
-                {stats.profiles}
-              </div>
-              <div className="muted">مستخدمون</div>
-            </div>
-
-            <div className="card" style={{ textAlign: 'center', marginBottom: 0 }}>
-              <div style={{ fontSize: '32px', fontWeight: '800', color: '#0ea5e9' }}>
-                {stats.roles}
+                {roles.length}
               </div>
               <div className="muted">أدوار</div>
             </div>
@@ -122,7 +94,7 @@ export default function HomePage() {
               <div style={{ fontSize: '32px', fontWeight: '800', color: '#10b981' }}>
                 ✓
               </div>
-              <div className="muted">RLS مفعّل</div>
+              <div className="muted">متصل بـ Supabase</div>
             </div>
           </div>
 
@@ -158,14 +130,11 @@ export default function HomePage() {
           <div className="card" style={{ background: '#f0f9ff', borderColor: '#bae6fd' }}>
             <h2>🎉 مبروك!</h2>
             <p>
-              تطبيق <strong>ABER</strong> الأول يعمل بنجاح على الإنترنت.
-            </p>
-            <p className="muted" style={{ marginTop: '8px' }}>
-              هذه البيانات مقروءة مباشرة من قاعدة بيانات Supabase.
+              تطبيق <strong>ABER</strong> متصل بـ Supabase بنجاح.
             </p>
           </div>
         </>
       )}
     </main>
   );
-    }
+}
