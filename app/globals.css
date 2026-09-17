@@ -1,0 +1,193 @@
+/* ============================================
+   ABER | عابر — التنسيقات الأساسية
+   ============================================ */
+
+:root {
+  --aber-primary: #0ea5e9;
+  --aber-primary-dark: #0284c7;
+  --aber-bg: #f8fafc;
+  --aber-text: #0f172a;
+  --aber-muted: #64748b;
+  --aber-border: #e2e8f0;
+  --aber-card: #ffffff;
+  --aber-radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Tahoma', 'Arial', sans-serif;
+  background: var(--aber-bg);
+  color: var(--aber-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.card {
+  background: var(--aber-card);
+  border: 1px solid var(--aber-border);
+  border-radius: var(--aber-radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.btn {
+  display: inline-block;
+  background: var(--aber-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: var(--aber-primary-dark);
+}
+
+.muted {
+  color: var(--aber-muted);
+  font-size: 14px;
+}
+
+h1, h2, h3 {
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 800;
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ============================================
+   تنسيقات النماذج (Forms)
+   ============================================ */
+
+.form {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--aber-text);
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid var(--aber-border);
+  border-radius: 10px;
+  background: white;
+  color: var(--aber-text);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--aber-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.form-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background: var(--aber-primary);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-btn:hover:not(:disabled) {
+  background: var(--aber-primary-dark);
+}
+
+.form-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-error {
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+}
+
+.form-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--aber-muted);
+}
+
+.form-link a {
+  color: var(--aber-primary);
+  font-weight: 600;
+}
+
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid var(--aber-border);
+  margin-bottom: 24px;
+}
+
+.header-nav a {
+  color: var(--aber-primary);
+  font-weight: 600;
+  font-size: 14px;
+}
