@@ -17,25 +17,17 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
-  const [diagnostics, setDiagnostics] = useState<any>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
-      setDiagnostics({
-        urlLength: supabaseUrl.length,
-        urlStart: supabaseUrl.substring(0, 40),
-        keyLength: supabaseAnon.length,
-        keyStart: supabaseAnon.substring(0, 25),
-      });
-
-      if (!supabaseUrl || !supabaseAnon) {
-        setError(`متغيرات Supabase غير معرّفة.\nURL: ${supabaseUrl ? 'موجود' : 'فارغ'}\nKEY: ${supabaseAnon ? 'موجود' : 'فارغ'}`);
-        setLoading(false);
-        return;
-      }
-
       try {
         const supabase = createClient(supabaseUrl, supabaseAnon);
+
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData.session?.user.email) {
+          setUserEmail(sessionData.session.user.email);
+        }
 
         const { data: rolesData, error: roleErr } = await supabase
           .from('roles')
@@ -43,20 +35,13 @@ export default function HomePage() {
           .order('created_at', { ascending: true })
           .limit(20);
 
-        if (roleErr) {
-          throw new Error(
-            `Supabase Error\nMessage: ${roleErr.message}\nCode: ${roleErr.code}\nDetails: ${roleErr.details || 'none'}\nHint: ${roleErr.hint || 'none'}`
-          );
-        }
+        if (roleErr) throw roleErr;
 
         setRoles((rolesData as Role[]) ?? []);
         setConnected(true);
-        setLoading(false);
       } catch (e: any) {
-        console.error('Full error:', e);
-        setError(
-          `Type: ${e.name || 'Error'}\nMessage: ${e.message || 'Unknown'}\nCause: ${e.cause?.message || 'none'}`
-        );
+        setError(e.message || 'حدث خطأ غير متوقع');
+      } finally {
         setLoading(false);
       }
     }
@@ -66,6 +51,20 @@ export default function HomePage() {
 
   return (
     <main className="container">
+      <div className="header-nav">
+        <strong style={{ color: '#0ea5e9', fontSize: '18px' }}>عابر 🌍</strong>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {userEmail ? (
+            <a href="/profile">حسابي ({userEmail})</a>
+          ) : (
+            <>
+              <a href="/login">تسجيل الدخول</a>
+              <a href="/signup">حساب جديد</a>
+            </>
+          )}
+        </div>
+      </div>
+
       <header style={{ textAlign: 'center', marginBottom: '32px' }}>
         <h1 style={{ fontSize: '38px', marginBottom: '8px' }}>
           مرحبًا بك في <span style={{ color: '#0ea5e9' }}>عابر</span> 🌍
@@ -83,30 +82,8 @@ export default function HomePage() {
 
       {error && (
         <div className="card" style={{ borderColor: '#fca5a5', background: '#fef2f2' }}>
-          <h2 style={{ color: '#dc2626', marginBottom: '12px' }}>⚠️ خطأ</h2>
-          <pre
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              fontSize: '13px',
-              background: '#fff',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid #fca5a5',
-              fontFamily: 'monospace',
-            }}
-          >
-            {error}
-          </pre>
-
-          {diagnostics && (
-            <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
-              <p><strong>URL length:</strong> {diagnostics.urlLength} chars</p>
-              <p><strong>URL start:</strong> {diagnostics.urlStart}</p>
-              <p><strong>Key length:</strong> {diagnostics.keyLength} chars</p>
-              <p><strong>Key start:</strong> {diagnostics.keyStart}...</p>
-            </div>
-          )}
+          <h2 style={{ color: '#dc2626' }}>⚠️ خطأ</h2>
+          <p style={{ wordBreak: 'break-word' }}>{error}</p>
         </div>
       )}
 
@@ -168,6 +145,9 @@ export default function HomePage() {
             <h2>🎉 مبروك!</h2>
             <p>
               تطبيق <strong>ABER</strong> متصل بـ Supabase بنجاح.
+            </p>
+            <p className="muted" style={{ marginTop: '12px' }}>
+              جرّب: <a href="/signup" style={{ color: '#0ea5e9', fontWeight: 600 }}>أنشئ حسابًا جديدًا</a> ←
             </p>
           </div>
         </>
