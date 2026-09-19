@@ -10,15 +10,12 @@ type Category = {
   id: string;
   code: string;
   name_ar: string;
-  name_en: string;
-  icon: string | null;
 };
 
 type Country = {
   id: string;
   iso2: string;
   name_ar: string;
-  name_en: string;
   flag_url: string | null;
 };
 
@@ -28,13 +25,26 @@ type City = {
   name_en: string;
   slug: string | null;
   cover_image_url: string | null;
-  is_featured: boolean;
+};
+
+type Business = {
+  id: string;
+  display_name_ar: string;
+  display_name_en: string | null;
+  slug: string;
+  description_ar: string | null;
+  cover_image_url: string | null;
+  is_verified: boolean;
+  rating_avg: number;
+  rating_count: number;
+  city_id: string | null;
 };
 
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,34 +59,44 @@ export default function HomePage() {
           setUserEmail(sessionData.session.user.email);
         }
 
-        const [cats, cos, cts] = await Promise.all([
+        const [cats, cos, cts, biz] = await Promise.all([
           supabase
             .from('categories')
-            .select('id, code, name_ar, name_en, icon')
+            .select('id, code, name_ar')
             .eq('is_active', true)
-            .order('sort_order', { ascending: true })
+            .order('sort_order')
             .limit(18),
           supabase
             .from('countries')
-            .select('id, iso2, name_ar, name_en, flag_url')
+            .select('id, iso2, name_ar, flag_url')
             .eq('is_active', true)
-            .order('name_ar', { ascending: true })
+            .order('name_ar')
             .limit(12),
           supabase
             .from('cities')
-            .select('id, name_ar, name_en, slug, cover_image_url, is_featured')
+            .select('id, name_ar, name_en, slug, cover_image_url')
             .eq('is_featured', true)
             .eq('is_active', true)
             .limit(6),
+          supabase
+            .from('businesses')
+            .select('id, display_name_ar, display_name_en, slug, description_ar, cover_image_url, is_verified, rating_avg, rating_count, city_id')
+            .eq('status', 'APPROVED')
+            .is('deleted_at', null)
+            .order('is_verified', { ascending: false })
+            .order('created_at', { ascending: false })
+            .limit(8),
         ]);
 
         if (cats.error) throw cats.error;
         if (cos.error) throw cos.error;
         if (cts.error) throw cts.error;
+        if (biz.error) throw biz.error;
 
         setCategories((cats.data as Category[]) ?? []);
         setCountries((cos.data as Country[]) ?? []);
         setCities((cts.data as City[]) ?? []);
+        setBusinesses((biz.data as Business[]) ?? []);
       } catch (e: any) {
         setError(e.message || 'حدث خطأ في تحميل البيانات');
       } finally {
@@ -231,7 +251,6 @@ export default function HomePage() {
                         textAlign: 'center',
                         textDecoration: 'none',
                         display: 'block',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
                       }}
                     >
                       <div style={{ fontSize: '28px', marginBottom: '8px' }}>
@@ -239,6 +258,82 @@ export default function HomePage() {
                       </div>
                       <div style={{ fontWeight: 700, fontSize: '14px', color: '#1a2942' }}>
                         {cat.name_ar}
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Featured Businesses */}
+            {businesses.length > 0 && (
+              <section style={{ marginBottom: '48px' }}>
+                <h2 style={{ fontSize: '24px', marginBottom: '20px', color: '#1a2942' }}>
+                  🏢 أنشطة معتمدة
+                  <span style={{ fontSize: '14px', color: '#7a6f5f', marginRight: '10px', fontWeight: 400 }}>
+                    ({businesses.length})
+                  </span>
+                </h2>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                  gap: '20px',
+                }}>
+                  {businesses.map((biz) => (
+                    <a
+                      key={biz.id}
+                      href={`/businesses/${biz.slug}`}
+                      style={{
+                        background: 'white',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        border: '1px solid #e5dcc9',
+                        textDecoration: 'none',
+                        display: 'block',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                      }}
+                    >
+                      {biz.cover_image_url ? (
+                        <img
+                          src={biz.cover_image_url}
+                          alt={biz.display_name_ar}
+                          style={{ width: '100%', height: '180px', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div style={{
+                          height: '180px',
+                          background: 'linear-gradient(135deg, #1e3a5f, #2d5080)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '60px',
+                        }}>🏢</div>
+                      )}
+                      <div style={{ padding: '18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                          <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a2942' }}>
+                            {biz.display_name_ar}
+                          </h3>
+                          {biz.is_verified && (
+                            <span style={{ color: '#059669', fontSize: '12px', fontWeight: 700 }}>✓ موثق</span>
+                          )}
+                        </div>
+                        <p style={{ color: '#7a6f5f', fontSize: '13px', marginBottom: '10px' }}>
+                          {biz.display_name_en || biz.slug}
+                        </p>
+                        {biz.description_ar && (
+                          <p style={{
+                            color: '#4a5568',
+                            fontSize: '13px',
+                            lineHeight: 1.5,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}>
+                            {biz.description_ar}
+                          </p>
+                        )}
                       </div>
                     </a>
                   ))}
@@ -366,6 +461,18 @@ export default function HomePage() {
                   textAlign: 'center',
                 }}>
                   <div style={{ fontSize: '28px', fontWeight: 800, color: '#1e3a5f' }}>
+                    {businesses.length}
+                  </div>
+                  <div style={{ color: '#7a6f5f', fontSize: '14px' }}>نشاط</div>
+                </div>
+                <div style={{
+                  background: 'white',
+                  padding: '20px',
+                  borderRadius: '16px',
+                  border: '1px solid #e5dcc9',
+                  textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#1e3a5f' }}>
                     {countries.length}
                   </div>
                   <div style={{ color: '#7a6f5f', fontSize: '14px' }}>دولة</div>
@@ -393,18 +500,6 @@ export default function HomePage() {
                     {categories.length}
                   </div>
                   <div style={{ color: '#7a6f5f', fontSize: '14px' }}>فئة</div>
-                </div>
-                <div style={{
-                  background: 'white',
-                  padding: '20px',
-                  borderRadius: '16px',
-                  border: '1px solid #e5dcc9',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#c9a961' }}>
-                    ✓
-                  </div>
-                  <div style={{ color: '#7a6f5f', fontSize: '14px' }}>متصل</div>
                 </div>
               </div>
             </section>
@@ -435,24 +530,12 @@ export default function HomePage() {
 
 function getCategoryEmoji(code: string): string {
   const map: Record<string, string> = {
-    hotels: '🏨',
-    resorts: '🌴',
-    apartments: '🏢',
-    restaurants: '🍽️',
-    cafes: '☕',
-    activities: '🎢',
-    experiences: '⭐',
-    tours: '🗺️',
-    guides: '👤',
-    transportation: '🚗',
-    car_rental: '🔑',
-    events: '🎉',
-    shopping: '🛍️',
-    beaches: '🏖️',
-    nature: '🌲',
-    history: '🏛️',
-    family: '👨‍👩‍👧',
-    adventure: '⛰️',
+    hotels: '🏨', resorts: '🌴', apartments: '🏢',
+    restaurants: '🍽️', cafes: '☕', activities: '🎢',
+    experiences: '⭐', tours: '🗺️', guides: '👤',
+    transportation: '🚗', car_rental: '🔑', events: '🎉',
+    shopping: '🛍️', beaches: '🏖️', nature: '🌲',
+    history: '🏛️', family: '👨‍👩‍👧', adventure: '⛰️',
   };
   return map[code] || '📍';
 }
