@@ -32,11 +32,9 @@ export default function ProfilePage() {
     async function loadData() {
       try {
         const supabase = createClient(supabaseUrl, supabaseAnon);
-
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) throw sessionError;
-
         if (!sessionData.session) {
           router.push('/login');
           return;
@@ -60,18 +58,13 @@ export default function ProfilePage() {
         if (roleError) throw roleError;
 
         setProfile(profileData as Profile);
-        setRoles(
-          ((roleData ?? []) as any[])
-            .map((r) => r.roles)
-            .filter(Boolean) as Role[]
-        );
+        setRoles(((roleData ?? []) as any[]).map((r) => r.roles).filter(Boolean) as Role[]);
       } catch (e: any) {
         setError(e.message || 'حدث خطأ في تحميل البيانات');
       } finally {
         setLoading(false);
       }
     }
-
     loadData();
   }, [router]);
 
@@ -83,21 +76,18 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="container" style={{ paddingTop: '60px', textAlign: 'center' }}>
-        <p>جاري التحميل...</p>
+      <main style={{ background: 'var(--bg)', minHeight: '100vh', padding: '60px 20px', textAlign: 'center' }}>
+        <p className="muted">جاري التحميل...</p>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="container" style={{ paddingTop: '60px' }}>
-        <div className="card" style={{ borderColor: '#fca5a5', background: '#fef2f2' }}>
-          <h2 style={{ color: '#dc2626' }}>⚠️ خطأ</h2>
-          <p>{error}</p>
-          <p className="muted" style={{ marginTop: '12px' }}>
-            <a href="/login" style={{ color: '#0ea5e9' }}>→ تسجيل الدخول</a>
-          </p>
+      <main style={{ background: 'var(--bg)', minHeight: '100vh', padding: '60px 20px' }}>
+        <div style={{ maxWidth: '460px', margin: '0 auto' }}>
+          <div className="form-error">⚠️ {error}</div>
+          <a href="/login" className="btn btn-primary btn-full mt-4">تسجيل الدخول</a>
         </div>
       </main>
     );
@@ -105,96 +95,119 @@ export default function ProfilePage() {
 
   if (!profile) return null;
 
+  const initial = (profile.full_name || profile.email).charAt(0).toUpperCase();
+
   return (
-    <main className="container" style={{ paddingTop: '40px' }}>
-      <div className="header-nav">
-        <a href="/">← الرئيسية</a>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+      {/* Header */}
+      <header className="app-header">
+        <a href="/" className="brand">
+          <span className="brand-logo">✦</span>
+          عابر
+        </a>
         <button
           onClick={handleLogout}
-          style={{
-            padding: '8px 16px',
-            background: '#dc2626',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '14px',
-          }}
+          className="btn btn-danger"
+          style={{ padding: '8px 16px', fontSize: '13px' }}
         >
-          تسجيل الخروج
+          🚪 خروج
         </button>
-      </div>
+      </header>
 
-      <div className="card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <div
-            style={{
-              width: '70px',
-              height: '70px',
-              borderRadius: '50%',
-              background: '#0ea5e9',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px',
-              fontWeight: 800,
-            }}
-          >
-            {(profile.full_name || profile.email).charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <h1 style={{ fontSize: '24px', marginBottom: '4px' }}>
-              {profile.full_name || 'بدون اسم'}
-            </h1>
-            <p className="muted" dir="ltr" style={{ textAlign: 'left' }}>
-              {profile.email}
-            </p>
-          </div>
+      {/* Profile Hero */}
+      <section style={{
+        background: 'linear-gradient(135deg, var(--navy-500), var(--navy-900))',
+        padding: '40px 20px 30px',
+        textAlign: 'center',
+        color: '#fff',
+      }}>
+        <div style={{
+          width: '80px',
+          height: '80px',
+          borderRadius: '50%',
+          background: 'var(--gold-500)',
+          display: 'grid',
+          placeItems: 'center',
+          fontSize: '32px',
+          fontWeight: 800,
+          margin: '0 auto 16px',
+          boxShadow: '0 8px 24px rgba(193, 154, 78, 0.4)',
+        }}>
+          {initial}
         </div>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '4px', color: '#fff' }}>
+          {profile.full_name || 'بدون اسم'}
+        </h1>
+        <p style={{ fontSize: '13px', opacity: 0.8 }} dir="ltr">
+          {profile.email}
+        </p>
+      </section>
 
-        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-          <h2 style={{ fontSize: '18px', marginBottom: '16px' }}>معلومات الحساب</h2>
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
+
+        {/* Info Card */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: 'var(--r-lg)',
+          boxShadow: 'var(--sh-card)',
+          padding: '20px',
+          marginBottom: '16px',
+        }}>
+          <h3 style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            marginBottom: '16px',
+            color: 'var(--navy-500)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}>
+            ℹ️ معلومات الحساب
+          </h3>
 
           <div style={{ display: 'grid', gap: '12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="muted">الاسم:</span>
-              <strong>{profile.full_name || '—'}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="muted">البريد:</span>
-              <strong dir="ltr">{profile.email}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="muted">الهاتف:</span>
-              <strong dir="ltr">{profile.phone || '—'}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="muted">اللغة:</span>
-              <strong>{profile.locale === 'ar' ? 'العربية' : profile.locale || 'ar'}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="muted">تاريخ الانضمام:</span>
-              <strong>{new Date(profile.created_at).toLocaleDateString('ar-SA')}</strong>
-            </div>
+            <InfoRow label="الاسم" value={profile.full_name || '—'} />
+            <InfoRow label="البريد" value={profile.email} ltr />
+            <InfoRow label="الهاتف" value={profile.phone || '—'} ltr />
+            <InfoRow label="اللغة" value={profile.locale === 'ar' ? 'العربية' : profile.locale || 'ar'} />
+            <InfoRow
+              label="تاريخ الانضمام"
+              value={new Date(profile.created_at).toLocaleDateString('ar-SA')}
+            />
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '20px', marginTop: '20px' }}>
-          <h2 style={{ fontSize: '18px', marginBottom: '16px' }}>الأدوار</h2>
+        {/* Roles Card */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: 'var(--r-lg)',
+          boxShadow: 'var(--sh-card)',
+          padding: '20px',
+          marginBottom: '16px',
+        }}>
+          <h3 style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            marginBottom: '16px',
+            color: 'var(--navy-500)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}>
+            🎭 الأدوار
+          </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {roles.length === 0 && <p className="muted">لا توجد أدوار</p>}
             {roles.map((role) => (
               <span
                 key={role.code}
                 style={{
-                  padding: '6px 12px',
-                  background: '#e0f2fe',
-                  color: '#0284c7',
-                  borderRadius: '20px',
+                  padding: '6px 14px',
+                  background: 'var(--navy-50)',
+                  color: 'var(--navy-500)',
+                  borderRadius: 'var(--r-pill)',
                   fontSize: '13px',
-                  fontWeight: 600,
+                  fontWeight: 700,
                 }}
               >
                 {role.name_ar} ({role.code})
@@ -202,7 +215,73 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+
+        {/* Quick Links */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: 'var(--r-lg)',
+          boxShadow: 'var(--sh-card)',
+          overflow: 'hidden',
+        }}>
+          <MenuLink icon="🧳" label="رحلاتي" href="/trips" />
+          <MenuLink icon="📅" label="حجوزاتي" href="/bookings" />
+          <MenuLink icon="❤️" label="المفضلة" href="/favorites" />
+          <MenuLink icon="🌐" label="الدول" href="/countries" />
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="btn btn-full"
+          style={{
+            marginTop: '16px',
+            background: 'transparent',
+            color: 'var(--danger)',
+            border: '1.5px solid #fee2e2',
+          }}
+        >
+          🚪 تسجيل الخروج
+        </button>
       </div>
     </main>
+  );
+}
+
+function InfoRow({ label, value, ltr }: { label: string; value: string; ltr?: boolean }) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '10px 0',
+      borderBottom: '1px solid var(--border)',
+    }}>
+      <span style={{ color: 'var(--text-2)', fontSize: '13px' }}>{label}</span>
+      <strong style={{ fontSize: '13px', color: 'var(--text)' }} dir={ltr ? 'ltr' : 'rtl'}>
+        {value}
+      </strong>
+    </div>
+  );
+}
+
+function MenuLink({ icon, label, href }: { icon: string; label: string; href: string }) {
+  return (
+    <a
+      href={href}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '16px',
+        borderBottom: '1px solid var(--border)',
+        fontSize: '14px',
+        color: 'var(--text)',
+        textDecoration: 'none',
+      }}
+    >
+      <span style={{ fontSize: '18px', width: '24px', textAlign: 'center' }}>{icon}</span>
+      <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>
+      <span style={{ color: 'var(--text-3)', fontSize: '14px' }}>←</span>
+    </a>
   );
 }
