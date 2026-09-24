@@ -28,15 +28,10 @@ export default function SignupPage() {
 
     try {
       const supabase = createClient(supabaseUrl, supabaseAnon);
-
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
+        options: { data: { full_name: fullName } },
       });
 
       if (signUpError) throw signUpError;
@@ -54,75 +49,100 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="container" style={{ paddingTop: '60px' }}>
-      <div className="card form">
-        <h1 style={{ textAlign: 'center', marginBottom: '8px' }}>
-          انضم إلى عابر 🌍
-        </h1>
-        <p className="muted" style={{ textAlign: 'center', marginBottom: '28px' }}>
-          أنشئ حسابك وابدأ رحلتك
-        </p>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+      <div className="auth-wrap">
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <a href="/" className="brand" style={{ justifyContent: 'center', fontSize: '24px', marginBottom: '16px' }}>
+            <span className="brand-logo" style={{ width: '36px', height: '36px', fontSize: '18px' }}>✦</span>
+            عابر
+          </a>
+        </div>
+
+        <h1 className="auth-title">انضم إلى عابر 🌍</h1>
+        <p className="auth-sub">أنشئ حسابك وابدأ رحلتك حول العالم</p>
 
         {error && <div className="form-error">{error}</div>}
 
         <form onSubmit={handleSignup}>
           <div className="form-group">
-            <label className="form-label" htmlFor="fullName">الاسم الكامل</label>
-            <input
-              id="fullName"
-              type="text"
-              className="form-input"
-              placeholder="محمد عبدالله"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              disabled={loading}
-            />
+            <label className="form-label">الاسم الكامل</label>
+            <div className="input">
+              <span>👤</span>
+              <input
+                type="text"
+                placeholder="محمد عبدالله"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">البريد الإلكتروني</label>
-            <input
-              id="email"
-              type="email"
-              className="form-input"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-              dir="ltr"
-            />
+            <label className="form-label">البريد الإلكتروني</label>
+            <div className="input">
+              <span>✉️</span>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+                dir="ltr"
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">كلمة المرور</label>
-            <input
-              id="password"
-              type="password"
-              className="form-input"
-              placeholder="8 أحرف على الأقل"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              disabled={loading}
-              dir="ltr"
-            />
+            <label className="form-label">كلمة المرور</label>
+            <div className="input">
+              <span>🔒</span>
+              <input
+                type="password"
+                placeholder="8 أحرف على الأقل"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                disabled={loading}
+                dir="ltr"
+              />
+            </div>
           </div>
 
-          <button type="submit" className="form-btn" disabled={loading} style={{ marginTop: '8px' }}>
+          <label style={{
+            display: 'flex',
+            gap: '8px',
+            fontSize: '12px',
+            color: 'var(--text-2)',
+            margin: '12px 0 20px',
+          }}>
+            <input type="checkbox" required style={{ accentColor: 'var(--navy-500)', marginTop: '2px' }} />
+            <span>
+              أوافق على <a style={{ color: 'var(--navy-500)', fontWeight: 600, cursor: 'pointer' }}>الشروط والأحكام</a> و <a style={{ color: 'var(--navy-500)', fontWeight: 600, cursor: 'pointer' }}>سياسة الخصوصية</a>
+            </span>
+          </label>
+
+          <button type="submit" className="form-btn" disabled={loading}>
             {loading ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب'}
           </button>
         </form>
 
-        <div className="form-link">
-          لديك حساب؟ <a href="/login">سجّل الدخول</a>
+        <div className="divider">
+          <hr />
+          <span>أو</span>
+          <hr />
         </div>
 
-        <div className="form-link">
-          <a href="/">← العودة للرئيسية</a>
-        </div>
+        <p className="auth-footer" style={{ marginTop: '0', paddingTop: '0' }}>
+          لديك حساب؟ <a href="/login">سجّل الدخول</a>
+        </p>
+
+        <p className="auth-footer">
+          <a href="/" style={{ color: 'var(--text-2)' }}>← العودة للرئيسية</a>
+        </p>
       </div>
     </main>
   );
