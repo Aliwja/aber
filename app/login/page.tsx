@@ -21,17 +21,9 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient(supabaseUrl, supabaseAnon);
-
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
-
-      if (data.session) {
-        router.push('/profile');
-      }
+      if (data.session) router.push('/profile');
     } catch (e: any) {
       setError(e.message || 'حدث خطأ في تسجيل الدخول');
     } finally {
@@ -40,60 +32,71 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="container" style={{ paddingTop: '60px' }}>
-      <div className="card form">
-        <h1 style={{ textAlign: 'center', marginBottom: '8px' }}>
-          مرحبًا بعودتك 👋
-        </h1>
-        <p className="muted" style={{ textAlign: 'center', marginBottom: '28px' }}>
-          سجّل دخولك إلى عابر
-        </p>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+      <div className="auth-wrap">
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <a href="/" className="brand" style={{ justifyContent: 'center', fontSize: '24px', marginBottom: '16px' }}>
+            <span className="brand-logo" style={{ width: '36px', height: '36px', fontSize: '18px' }}>✦</span>
+            عابر
+          </a>
+        </div>
+
+        <h1 className="auth-title">مرحبًا بعودتك 👋</h1>
+        <p className="auth-sub">سجّل دخولك إلى عابر</p>
 
         {error && <div className="form-error">{error}</div>}
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label className="form-label" htmlFor="email">البريد الإلكتروني</label>
-            <input
-              id="email"
-              type="email"
-              className="form-input"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-              dir="ltr"
-            />
+            <label className="form-label">البريد الإلكتروني</label>
+            <div className="input">
+              <span>✉️</span>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+                dir="ltr"
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">كلمة المرور</label>
-            <input
-              id="password"
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              dir="ltr"
-            />
+            <label className="form-label">كلمة المرور</label>
+            <div className="input">
+              <span>🔒</span>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                dir="ltr"
+              />
+            </div>
           </div>
 
-          <button type="submit" className="form-btn" disabled={loading} style={{ marginTop: '8px' }}>
+          <button type="submit" className="form-btn" disabled={loading} style={{ marginTop: '16px' }}>
             {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
         </form>
 
-        <div className="form-link">
-          ليس لديك حساب؟ <a href="/signup">أنشئ حسابًا جديدًا</a>
+        <div className="divider">
+          <hr />
+          <span>أو</span>
+          <hr />
         </div>
 
-        <div className="form-link">
-          <a href="/">← العودة للرئيسية</a>
-        </div>
+        <p className="auth-footer" style={{ marginTop: '0', paddingTop: '0' }}>
+          ليس لديك حساب؟ <a href="/signup">سجّل الآن</a>
+        </p>
+
+        <p className="auth-footer">
+          <a href="/" style={{ color: 'var(--text-2)' }}>← العودة للرئيسية</a>
+        </p>
       </div>
     </main>
   );
