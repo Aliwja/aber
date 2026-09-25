@@ -8,7 +8,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 type Profile = {
-  email: string;
+  email: string | null;
   full_name: string | null;
   avatar_url: string | null;
 };
@@ -26,17 +26,39 @@ export default function Sidebar({
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient(supabaseUrl, supabaseAnon);
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) return;
+      try {
+        const supabase = createClient(supabaseUrl, supabaseAnon);
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) return;
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('email, full_name, avatar_url')
-        .eq('id', sessionData.session.user.id)
-        .maybeSingle();
+        const user = sessionData.session.user;
 
-      if (data) setProfile(data as Profile);
+        const { data } = await supabase
+          .from('profiles')
+          .select('email, full_name, avatar_url')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        // Fallback to session metadata
+        if (data) {
+          setProfile({
+            email: data.email || user.email || null,
+            full_name:
+              data.full_name ||
+              (user.user_metadata?.full_name as string) ||
+              null,
+            avatar_url: data.avatar_url || null,
+          });
+        } else {
+          setProfile({
+            email: user.email || null,
+            full_name: (user.user_metadata?.full_name as string) || null,
+            avatar_url: null,
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
     }
     load();
   }, []);
@@ -54,13 +76,13 @@ export default function Sidebar({
     { href: '/settings', icon: '⚙️', label: 'الإعدادات' },
   ];
 
-  const initial = (profile?.full_name || profile?.email || '?')
+  const initial = (profile?.full_name || profile?.email || '؟')
     .charAt(0)
     .toUpperCase();
 
   return (
     <>
-      {/* Overlay (mobile) */}
+      {/* Overlay */}
       <div
         className={`sidebar-overlay ${isOpen ? 'show' : ''}`}
         onClick={onClose}
@@ -68,7 +90,7 @@ export default function Sidebar({
 
       {/* Sidebar */}
       <aside className={`aber-sidebar ${isOpen ? 'open' : ''}`}>
-        {/* User */}
+        {/* User Card */}
         <a
           href="/profile"
           className="sidebar-user"
@@ -76,7 +98,10 @@ export default function Sidebar({
         >
           <div className="sidebar-user-avatar">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt={profile.full_name || 'avatar'} />
+              <img
+                src={profile.avatar_url}
+                alt={profile.full_name || 'avatar'}
+              />
             ) : (
               initial
             )}
@@ -86,13 +111,15 @@ export default function Sidebar({
               {profile?.full_name || 'بدون اسم'}
             </div>
             <div className="sidebar-user-email" dir="ltr">
-              {profile?.email}
+              {profile?.email || '—'}
             </div>
           </div>
+          <span className="sidebar-user-arrow">←</span>
         </a>
 
         {/* Menu */}
-        <nav style={{ padding: '12px 0', flex: 1 }}>
+        <div className="sidebar-section-label">القائمة</div>
+        <nav style={{ paddingBottom: '12px' }}>
           {menuItems.map((item) => {
             const active =
               item.href === '/'
@@ -113,7 +140,10 @@ export default function Sidebar({
         </nav>
 
         {/* Logout */}
-        <button className="sidebar-logout" onClick={handleLogout}>
+        <button
+          className="sidebar-logout"
+          onClick={handleLogout}
+        >
           🚪 تسجيل الخروج
         </button>
       </aside>
