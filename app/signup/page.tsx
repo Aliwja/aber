@@ -9,9 +9,9 @@ const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export default function SignupPage() {
   const router = useRouter();
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,21 +23,25 @@ export default function SignupPage() {
       setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
       return;
     }
+    if (password !== password2) {
+      setError('كلمتا المرور غير متطابقتين');
+      return;
+    }
 
     setLoading(true);
-
     try {
       const supabase = createClient(supabaseUrl, supabaseAnon);
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } },
       });
 
       if (signUpError) throw signUpError;
 
       if (data.session) {
-        router.push('/profile');
+        // جلسة فورية → انتقل لصفحة إكمال الملف
+        router.push('/complete-profile');
       } else {
         setError('تم إنشاء الحساب. تحقق من بريدك لتأكيد الحساب.');
       }
@@ -51,34 +55,36 @@ export default function SignupPage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <div className="auth-wrap">
+        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <a href="/" className="brand" style={{ justifyContent: 'center', fontSize: '24px', marginBottom: '16px' }}>
-            <span className="brand-logo" style={{ width: '36px', height: '36px', fontSize: '18px' }}>✦</span>
+          <a
+            href="/"
+            className="brand"
+            style={{
+              justifyContent: 'center',
+              fontSize: '24px',
+              marginBottom: '16px',
+              display: 'inline-flex',
+            }}
+          >
+            <span
+              className="brand-logo"
+              style={{ width: '36px', height: '36px', fontSize: '18px' }}
+            >
+              ✦
+            </span>
             عابر
           </a>
         </div>
 
         <h1 className="auth-title">انضم إلى عابر 🌍</h1>
-        <p className="auth-sub">أنشئ حسابك وابدأ رحلتك حول العالم</p>
+        <p className="auth-sub">
+          الخطوة 1 من 2 — أنشئ حسابك ثم أكمل بياناتك الشخصية
+        </p>
 
         {error && <div className="form-error">{error}</div>}
 
         <form onSubmit={handleSignup}>
-          <div className="form-group">
-            <label className="form-label">الاسم الكامل</label>
-            <div className="input">
-              <span>👤</span>
-              <input
-                type="text"
-                placeholder="محمد عبدالله"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-          </div>
-
           <div className="form-group">
             <label className="form-label">البريد الإلكتروني</label>
             <div className="input">
@@ -112,36 +118,54 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <label style={{
-            display: 'flex',
-            gap: '8px',
-            fontSize: '12px',
-            color: 'var(--text-2)',
-            margin: '12px 0 20px',
-          }}>
-            <input type="checkbox" required style={{ accentColor: 'var(--navy-500)', marginTop: '2px' }} />
-            <span>
-              أوافق على <a style={{ color: 'var(--navy-500)', fontWeight: 600, cursor: 'pointer' }}>الشروط والأحكام</a> و <a style={{ color: 'var(--navy-500)', fontWeight: 600, cursor: 'pointer' }}>سياسة الخصوصية</a>
-            </span>
-          </label>
+          <div className="form-group">
+            <label className="form-label">تأكيد كلمة المرور</label>
+            <div className="input">
+              <span>🔒</span>
+              <input
+                type="password"
+                placeholder="أعد كتابة كلمة المرور"
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                required
+                minLength={8}
+                disabled={loading}
+                dir="ltr"
+              />
+            </div>
+          </div>
 
-          <button type="submit" className="form-btn" disabled={loading}>
-            {loading ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب'}
+          <div
+            style={{
+              padding: '12px 14px',
+              background: 'var(--navy-50)',
+              borderRadius: 'var(--r-md)',
+              fontSize: '12px',
+              color: 'var(--text-2)',
+              marginBottom: '16px',
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'flex-start',
+            }}
+          >
+            <span style={{ fontSize: '16px', lineHeight: 1 }}>ℹ️</span>
+            <span>
+              بعد التسجيل، ستُطلب منك إكمال بياناتك (الدولة، المدينة، رقم الجوال،
+              الجواز، صورة شخصية).
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            className="form-btn"
+            disabled={loading}
+          >
+            {loading ? 'جاري الإنشاء...' : 'إنشاء الحساب'}
           </button>
         </form>
 
-        <div className="divider">
-          <hr />
-          <span>أو</span>
-          <hr />
-        </div>
-
-        <p className="auth-footer" style={{ marginTop: '0', paddingTop: '0' }}>
-          لديك حساب؟ <a href="/login">سجّل الدخول</a>
-        </p>
-
         <p className="auth-footer">
-          <a href="/" style={{ color: 'var(--text-2)' }}>← العودة للرئيسية</a>
+          لديك حساب؟ <a href="/login">سجّل الدخول</a>
         </p>
       </div>
     </main>
